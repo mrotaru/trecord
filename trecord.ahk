@@ -2,9 +2,8 @@
 old_prog = StartUp
 first_run = true
 
-; set location and header row for the output file
-;filename = %A_UserName%_%a_yyyy%-%a_mm%.txt
-filename = log.txt
+filename = time.txt ; output
+tracefile = trace.txt
 
 ; set initial start time
 ;FormatTime, StartTime,,MM/dd/yy hh:mm:ss tt
@@ -16,17 +15,22 @@ RemoveTrayTip:
 TrayTip
 return
 
+debug(msg=""){
+    FileAppend, %msg%`r`n, %tracefile%
+}
+
 ;--------------------------------------------------
 ActiveProgLog:
 if (old_prog = WinExist("A"))                ; if hWnd values match
    return                                    ; go back and wait for next execution of time
 
-; get new program info
-WinGet, program_name, ProcessName, A
-WinGetActiveTitle, window_name
+debug()
 
-if (!first_run)
-    first_run = false
+; first run - skip writing
+if (first_run) {
+    first_run = 0
+    goto SkipWriting
+}
 
 ; do not log certain windows
 if (window_name = "")
@@ -35,7 +39,9 @@ if (window_name = "Task Switching")
     return
 
 ; get time
+debug("After returns")
 T_NOW=%A_now%
+
 FormatTime, T_NOW_F,,MM/dd/yy hh:mm:ss tt
 FormatTime, day_of_week,,dddd			;the full day of the week variable
 FormatTime, day,,dd				;day of the month variable
@@ -56,10 +62,24 @@ If ( min < 10 )
 
 Duration1=%hr%:%min%:%sec%
 
-; save values for output file
+debug("Duration set: %Duration1%")
+
 TrayTip, , Writing: %window_name% %Duration1%,1,1
+debug("Writing: %window_name% %Duration1%")
 datarow = {window: "%window_name%", duration: "%Duration1%", start: "%T_START_F%", end: "%T_NOW_F%", program: "%program_name%"}`r`n
 FileAppend, %datarow%, %filename%
+
+SkipWriting:
+WinGet, program_name, ProcessName, A
+WinGetActiveTitle, window_name
+
+; do not log certain windows
+if (window_name = "")
+    return
+if (window_name = "Task Switching")
+    return
+
+debug("Set new window: %window_name%")
 
 ; set old_prog with hWnd of new active window
 old_prog :=   WinExist("A")                   
