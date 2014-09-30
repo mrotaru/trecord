@@ -16,6 +16,8 @@ TrayTip
 return
 
 debug(msg=""){
+    ;MsgBox "DEBUG %msg%"
+    global tracefile
     FileAppend, %msg%`r`n, %tracefile%
 }
 
@@ -62,10 +64,11 @@ If ( min < 10 )
 
 Duration1=%hr%:%min%:%sec%
 
-debug("Duration set: %Duration1%")
+;debug("Duration set : ".Duration1)
 
 TrayTip, , Writing: %window_name% %Duration1%,1,1
-debug("Writing: %window_name% %Duration1%")
+debug("Writing : " window_name)
+
 datarow = {window: "%window_name%", duration: "%Duration1%", start: "%T_START_F%", end: "%T_NOW_F%", program: "%program_name%"}`r`n
 FileAppend, %datarow%, %filename%
 
@@ -79,7 +82,7 @@ if (window_name = "")
 if (window_name = "Task Switching")
     return
 
-debug("Set new window: %window_name%")
+debug("Set new window : " window_name)
 
 ; set old_prog with hWnd of new active window
 old_prog :=   WinExist("A")                   
