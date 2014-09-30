@@ -35,9 +35,11 @@ if (first_run) {
 }
 
 ; do not log certain windows
-if (window_name = "")
+WinGet, _program_name, ProcessName, A
+WinGetActiveTitle, _window_name
+if (_window_name = "")
     return
-if (window_name = "Task Switching")
+if (_window_name = "Task Switching")
     return
 
 ; get time
