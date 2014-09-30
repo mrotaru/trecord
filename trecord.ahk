@@ -3,7 +3,11 @@ old_prog = StartUp
 first_run = true
 
 filename = time.txt ; output
-tracefile = trace.txt
+debug_log_file = debug.log ; debug log
+
+; if true, debug messages will be shown as tray notifications and some debug
+; messages will be logged to %debug_log%
+DEBUG_MODE = 0
 
 ; set initial start time
 ;FormatTime, StartTime,,MM/dd/yy hh:mm:ss tt
@@ -12,13 +16,19 @@ SetTimer, RemoveTrayTip, 2000
 return
 
 RemoveTrayTip:
+if(!DEBUG_MODE) return
 TrayTip
 return
 
 debug(msg=""){
-    ;MsgBox "DEBUG %msg%"
-    global tracefile
-    FileAppend, %msg%`r`n, %tracefile%
+    if(!DEBUG_MODE) return
+    global debug_log_file
+    FileAppend, %msg%`r`n, %debug_log_file%
+}
+
+debug_tray(msg=""){
+    if(!DEBUG_MODE) return
+    TrayTip, , %msg%,1,1
 }
 
 ;--------------------------------------------------
@@ -66,9 +76,7 @@ If ( min < 10 )
 
 Duration1=%hr%:%min%:%sec%
 
-;debug("Duration set : ".Duration1)
-
-TrayTip, , Writing: %window_name% %Duration1%,1,1
+debug_tray("Writing: " window_name Duration1)
 debug("Writing : " window_name)
 
 datarow = {window: "%window_name%", duration: "%Duration1%", start: "%T_START_F%", end: "%T_NOW_F%", program: "%program_name%"}`r`n
