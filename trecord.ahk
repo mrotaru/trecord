@@ -1,33 +1,40 @@
 #Persistent
+
+; includes
+#include %A_ScriptDir%/lib
+#include set_timer_f.ahk
+
+; state
 old_prog = StartUp
 first_run = true
 
+; settings
 filename = time.txt ; output
 debug_log_file = debug.log ; debug log
-
-; if true, debug messages will be shown as tray notifications and some debug
-; messages will be logged to %debug_log%
-DEBUG_MODE = 0
+DEBUG_MODE = 0 ; tray notifications and logging
 
 ; set initial start time
-;FormatTime, StartTime,,MM/dd/yy hh:mm:ss tt
 SetTimer, ActiveProgLog, 500
 return
 
 RemoveTrayTip:
-if(!DEBUG_MODE) return
+if(!DEBUG_MODE)
+    return
 TrayTip
 return
 
 debug(msg=""){
-    if(!DEBUG_MODE) return
-    global debug_log_file
+    global debug_log_file, DEBUG_MODE
+    if(!DEBUG_MODE)
+        return
     FileAppend, %msg%`r`n, %debug_log_file%
 }
 
 debug_tray(msg=""){
-    if(!DEBUG_MODE) return
-    TrayTip, , %msg%,1,1
+    global DEBUG_MODE
+    if(!DEBUG_MODE)
+        return
+    TrayTip, , DEBUG: %DEBUG_MODE% %msg%,1,1
     SetTimer, RemoveTrayTip, 2000
 }
 
