@@ -18,6 +18,21 @@ DEBUG_MODE = 1 ; tray notifications and logging
 SetTimer, ActiveProgLog, 500
 return
 
+getTimeDifference(_T_START, _T_END){
+    DIFF_SECONDS:=_T_END
+    DIFF_SECONDS-=_T_START,seconds
+
+    Transform hr,  floor, (DIFF_SECONDS/3600)
+    Transform min, floor, (DIFF_SECONDS/60) - hr*60
+    sec := DIFF_SECONDS - min*60 - hr*3600
+    If ( sec < 10 )
+       sec = 0%sec%
+    If ( min < 10 )
+       min = 0%min%
+
+    return hr . ":" . min . ":" . sec
+}
+
 ;--------------------------------------------------
 ActiveProgLog:
 if (old_prog = WinExist("A"))                ; if hWnd values match
@@ -50,18 +65,7 @@ FormatTime, month,,MMM				;month number variable
 FormatTime, year,,yyyy				;full 4 digit year variable
 FormatTime, week,,YWeek				;week number variable, in the format of YYYYWW
 
-DIFF_SECONDS:=T_NOW
-DIFF_SECONDS-=T_START,seconds
-
-Transform hr,  floor, (DIFF_SECONDS/3600)
-Transform min, floor, (DIFF_SECONDS/60) - hr*60
-sec := DIFF_SECONDS - min*60 - hr*3600
-If ( sec < 10 )
-   sec = 0%sec%
-If ( min < 10 )
-   min = 0%min%
-
-Duration1=%hr%:%min%:%sec%
+Duration1 := getTimeDifference(T_START, T_NOW)
 
 debug_tray("Writing: " window_name Duration1)
 debug("Writing : " window_name)
