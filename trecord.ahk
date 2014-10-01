@@ -3,6 +3,7 @@
 ; includes
 #include %A_ScriptDir%/lib
 #include set_timer_f.ahk
+#include utils.ahk
 
 ; state
 old_prog = StartUp
@@ -16,27 +17,6 @@ DEBUG_MODE = 0 ; tray notifications and logging
 ; set initial start time
 SetTimer, ActiveProgLog, 500
 return
-
-RemoveTrayTip:
-if(!DEBUG_MODE)
-    return
-TrayTip
-return
-
-debug(msg=""){
-    global debug_log_file, DEBUG_MODE
-    if(!DEBUG_MODE)
-        return
-    FileAppend, %msg%`r`n, %debug_log_file%
-}
-
-debug_tray(msg=""){
-    global DEBUG_MODE
-    if(!DEBUG_MODE)
-        return
-    TrayTip, , DEBUG: %DEBUG_MODE% %msg%,1,1
-    SetTimer, RemoveTrayTip, 2000
-}
 
 ;--------------------------------------------------
 ActiveProgLog:
