@@ -1,3 +1,6 @@
+; check dependecies
+IsFunc("SetTimerF") ? continue : MsgBox "Should have 'SetTimerF' function"
+
 ; append `msg` to `debug_log_file`
 debug(msg=""){
     global debug_log_file, DEBUG_MODE

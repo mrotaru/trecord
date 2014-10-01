@@ -12,8 +12,6 @@ first_run = true
 ; settings
 filename = time.txt ; output
 debug_log_file = debug.log ; debug log
-
-; debugging
 DEBUG_MODE = 1 ; tray notifications and logging
 
 ; set initial start time
