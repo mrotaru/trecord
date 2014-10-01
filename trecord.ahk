@@ -12,7 +12,6 @@ DEBUG_MODE = 0
 ; set initial start time
 ;FormatTime, StartTime,,MM/dd/yy hh:mm:ss tt
 SetTimer, ActiveProgLog, 500
-SetTimer, RemoveTrayTip, 2000
 return
 
 RemoveTrayTip:
@@ -29,6 +28,7 @@ debug(msg=""){
 debug_tray(msg=""){
     if(!DEBUG_MODE) return
     TrayTip, , %msg%,1,1
+    SetTimer, RemoveTrayTip, 2000
 }
 
 ;--------------------------------------------------
