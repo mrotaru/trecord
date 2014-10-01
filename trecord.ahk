@@ -12,7 +12,9 @@ first_run = true
 ; settings
 filename = time.txt ; output
 debug_log_file = debug.log ; debug log
-DEBUG_MODE = 0 ; tray notifications and logging
+
+; debugging
+DEBUG_MODE = 1 ; tray notifications and logging
 
 ; set initial start time
 SetTimer, ActiveProgLog, 500
