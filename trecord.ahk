@@ -36,20 +36,33 @@ getTimeDifference(_T_START, _T_END){
 
 ; return 1 if should be logged
 ; ----------------------------
-shouldLog(programName, windowTitle) {
-    if (windowTitle = "")
+shouldLog() {
+    global
+    if (g_window_title = "")
         return 0
-    if (windowTitle = "Task Switching")
+    if (g_window_title = "Task Switching")
         return 0
+    ;debug_tray("should log" windowTitle)
     return 1
 }
 
 ; set g_program_name and g_window_title
 ; -------------------------------------
 getCurrentProgramInfo() {
-    global g_program_name, g_window_title
+    global
+
+    ; store previous values
+    g_prev_program_name := g_program_name
+    g_prev_window_title := g_window_title
+
+    ; get new ones
     WinGet, g_program_name, ProcessName, A
     WinGetActiveTitle, g_window_title
+}
+
+restorePreviousProgramInfo() {
+    g_program_name := g_prev_program_name
+    g_window_title := g_prev_window_title
 }
 
 ; log entry
@@ -63,11 +76,9 @@ writeLogEntry() {
     T_DURATION := getTimeDifference(T_START, T_NOW)
 
     ; write
-    if(shouldLog(g_program_name, g_window_title)) {
-        datarow = {window: "%g_window_title%", duration: "%T_DURATION%", start: "%T_START_F%", end: "%T_NOW_F%", program: "%g_program_name%"}`r`n
-        debug_tray("Writing: " g_window_title T_DURATION)
-        FileAppend, %datarow%, %filename%
-    }
+    datarow = {window: "%g_window_title%", duration: "%T_DURATION%", start: "%T_START_F%", end: "%T_NOW_F%", program: "%g_program_name%"}`r`n
+    debug_tray("Writing: " g_window_title T_DURATION)
+    FileAppend, %datarow%, %filename%
 }
 
 checkCurrentProgram() {
@@ -75,12 +86,17 @@ checkCurrentProgram() {
     if (old_prog = WinExist("A"))                ; if hWnd values match
        return                                    ; go back and wait for next execution of time
 
+    getCurrentProgramInfo()
+    if(!shouldLog()) {
+        restorePreviousProgramInfo()
+        return
+    }
+
     ; not first run - log previously recorded window
     if (!first_run) {
         writeLogEntry()
     } else {
         first_run = 0
-        getCurrentProgramInfo()
     }
 
     ; set old_prog with hWnd of new active window
