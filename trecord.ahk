@@ -8,7 +8,7 @@
 ; state
 old_prog = StartUp
 first_run = 1
-skipped = 0
+store_prev = 1
 
 ; settings
 filename = time.txt ; output
@@ -54,7 +54,7 @@ getCurrentProgramInfo() {
     global
 
     ; store previous values
-    if(!skipped) {
+    if(store_prev) {
         g_prev_program_name := g_program_name
         g_prev_window_title := g_window_title
     }
@@ -62,13 +62,6 @@ getCurrentProgramInfo() {
     ; get new ones
     WinGet, g_program_name, ProcessName, A
     WinGetActiveTitle, g_window_title
-}
-
-restorePreviousProgramInfo() {
-    global
-
-    g_program_name := g_prev_program_name
-    g_window_title := g_prev_window_title
 }
 
 ; log entry
@@ -86,7 +79,7 @@ writeLogEntry() {
     debug_tray("Writing: " g_prev_window_title " " T_DURATION)
     FileAppend, %datarow%, %filename%
 
-    skipped = 0
+    store_prev = 1
 }
 
 checkCurrentProgram() {
@@ -102,7 +95,7 @@ checkCurrentProgram() {
         if(shouldLog()) {
             writeLogEntry()
         } else {
-            skipped = 1
+            store_prev = 0
             return
         }
     } else {
