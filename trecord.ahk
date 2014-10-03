@@ -7,7 +7,8 @@
 
 ; state
 old_prog = StartUp
-first_run = true
+first_run = 1
+skipped = 0
 
 ; settings
 filename = time.txt ; output
@@ -38,6 +39,7 @@ getTimeDifference(_T_START, _T_END){
 ; ----------------------------
 shouldLog() {
     global
+
     if (g_window_title = "")
         return 0
     if (g_window_title = "Task Switching")
@@ -52,8 +54,10 @@ getCurrentProgramInfo() {
     global
 
     ; store previous values
-    g_prev_program_name := g_program_name
-    g_prev_window_title := g_window_title
+    if(!skipped) {
+        g_prev_program_name := g_program_name
+        g_prev_window_title := g_window_title
+    }
 
     ; get new ones
     WinGet, g_program_name, ProcessName, A
@@ -61,6 +65,8 @@ getCurrentProgramInfo() {
 }
 
 restorePreviousProgramInfo() {
+    global
+
     g_program_name := g_prev_program_name
     g_window_title := g_prev_window_title
 }
@@ -76,25 +82,29 @@ writeLogEntry() {
     T_DURATION := getTimeDifference(T_START, T_NOW)
 
     ; write
-    datarow = {window: "%g_window_title%", duration: "%T_DURATION%", start: "%T_START_F%", end: "%T_NOW_F%", program: "%g_program_name%"}`r`n
-    debug_tray("Writing: " g_window_title T_DURATION)
+    datarow = {window: "%g_prev_window_title%", duration: "%T_DURATION%", start: "%T_START_F%", end: "%T_NOW_F%", program: "%g_prev_program_name%"}`r`n
+    debug_tray("Writing: " g_prev_window_title " " T_DURATION)
     FileAppend, %datarow%, %filename%
+
+    skipped = 0
 }
 
 checkCurrentProgram() {
     global
+
     if (old_prog = WinExist("A"))                ; if hWnd values match
        return                                    ; go back and wait for next execution of time
 
     getCurrentProgramInfo()
-    if(!shouldLog()) {
-        restorePreviousProgramInfo()
-        return
-    }
 
     ; not first run - log previously recorded window
     if (!first_run) {
-        writeLogEntry()
+        if(shouldLog()) {
+            writeLogEntry()
+        } else {
+            skipped = 1
+            return
+        }
     } else {
         first_run = 0
     }
