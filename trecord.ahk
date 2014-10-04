@@ -13,7 +13,7 @@ store_prev = 1
 ; settings
 filename = time.txt ; output
 debug_log_file = debug.log ; debug log
-DEBUG_MODE = 1 ; tray notifications and logging
+DEBUG_MODE = 0 ; tray notifications and logging
 
 ; set initial start time
 SetTimerF("checkCurrentProgram", 500)
