@@ -2,7 +2,8 @@
 
 ; includes
 #include %A_ScriptDir%/lib
-#include set_timer_f.ahk
+#include set-timer-f.ahk
+#include get-active-browser-url.ahk
 #include utils.ahk
 
 ; state
