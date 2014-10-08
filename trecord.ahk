@@ -14,7 +14,7 @@ store_prev = 1
 ; settings
 filename = time.txt ; output
 debug_log_file = debug.log ; debug log
-DEBUG_MODE = 0 ; tray notifications and logging
+DEBUG_MODE = 1 ; tray notifications and logging
 
 ; set initial start time
 SetTimerF("checkCurrentProgram", 500)
@@ -63,6 +63,27 @@ getCurrentProgramInfo() {
     ; get new ones
     WinGet, g_program_name, ProcessName, A
     WinGetActiveTitle, g_window_title
+
+}
+
+; returns url if `hwnd` is a browser
+; -------------------------------------
+getBrowserUrl(hwnd) {
+    local url, windowClass
+	WinGetClass, windowClass, ahk_id %hwnd%
+	If sClass In Chrome_WidgetWin_1,Chrome_WidgetWin_0,Maxthon3Cls_MainFrm
+		Return GetBrowserURL_ACC(sClass)
+	Else
+		Return GetBrowserURL_DDE(sClass) ; empty string if DDE not supported (or not a browser)
+}
+
+; -------------------------------------
+isABrowser(hwnd) {
+	WinGetClass, windowClass, ahk_id %hwnd%
+	If windowClass In IEFrame, MozillaWindowClass, OperaWindowClass, Chrome_WidgetWin_1, Chrome_WidgetWin_0, Maxthon3Cls_MainFrm {
+        return true
+    Else
+        return false
 }
 
 ; log entry
@@ -75,9 +96,20 @@ writeLogEntry() {
     FormatTime, T_NOW_F,,MM/dd/yy hh:mm:ss tt
     T_DURATION := getTimeDifference(T_START, T_NOW)
 
-    ; write
-    datarow = {window: "%g_prev_window_title%", duration: "%T_DURATION%", start: "%T_START_F%", end: "%T_NOW_F%", program: "%g_prev_program_name%"}`r`n
+    ; browser ? then extract URL
+    if(isABrowser(old_prog)) {
+        url := getBrowserUrl(old_prog)
+    }
+
+    ; build data
+    datarow := "{window: """ . g_prev_window_title . ""","
+    if(url != "") {
+        datarow += "url: """ . url . """"
+    }
+    datarow += ", duration: " . T_DURATION . """, start: " . T_START_F . """" . ", end: """ . T_NOW_F . """, program: """ . g_prev_program_name . """}`r`n"
     debug_tray("Writing: " g_prev_window_title " " T_DURATION)
+
+    ; write
     FileAppend, %datarow%, %filename%
 
     store_prev = 1
