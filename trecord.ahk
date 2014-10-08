@@ -15,6 +15,7 @@ store_prev = 1
 filename = time.txt ; output
 debug_log_file = debug.log ; debug log
 DEBUG_MODE = 1 ; tray notifications and logging
+TIMESTAMP_FORMAT = yyyy-MM-ddThh:mm:ssZ
 
 ; set initial start time
 SetTimerF("checkCurrentProgram", 500)
@@ -93,7 +94,7 @@ writeLogEntry() {
 
     ; calc time difference
     T_NOW=%A_now%
-    FormatTime, T_NOW_F,,MM/dd/yy hh:mm:ss tt
+    FormatTime, T_NOW_F,,%TIMESTAMP_FORMAT%
     T_DURATION := getTimeDifference(T_START, T_NOW)
 
     ; browser ? then extract URL
@@ -139,6 +140,6 @@ checkCurrentProgram() {
     old_prog := WinExist("A")                   
 
     ; reset StartTime with new time
-    FormatTime, T_START_F,,MM/dd/yy hh:mm:ss tt
+    FormatTime, T_START_F,,%TIMESTAMP_FORMAT%
     T_START=%A_now%
 }
