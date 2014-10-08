@@ -71,19 +71,19 @@ getCurrentProgramInfo() {
 getBrowserUrl(hwnd) {
     local url, windowClass
 	WinGetClass, windowClass, ahk_id %hwnd%
-	If sClass In Chrome_WidgetWin_1,Chrome_WidgetWin_0,Maxthon3Cls_MainFrm
-		Return GetBrowserURL_ACC(sClass)
+	If windowClass In Chrome_WidgetWin_1,Chrome_WidgetWin_0,Maxthon3Cls_MainFrm
+		Return GetBrowserURL_ACC(windowClass)
 	Else
-		Return GetBrowserURL_DDE(sClass) ; empty string if DDE not supported (or not a browser)
+		Return GetBrowserURL_DDE(windowClass) ; empty string if DDE not supported (or not a browser)
 }
 
 ; -------------------------------------
 isABrowser(hwnd) {
 	WinGetClass, windowClass, ahk_id %hwnd%
-	If windowClass In IEFrame, MozillaWindowClass, OperaWindowClass, Chrome_WidgetWin_1, Chrome_WidgetWin_0, Maxthon3Cls_MainFrm {
+	If windowClass in IEFrame,MozillaWindowClass,OperaWindowClass,Chrome_WidgetWin_1,Chrome_WidgetWin_0,Maxthon3Cls_MainFrm
         return true
-    Else
-        return false
+
+    return false
 }
 
 ; log entry
@@ -104,10 +104,10 @@ writeLogEntry() {
     ; build data
     datarow := "{window: """ . g_prev_window_title . ""","
     if(url != "") {
-        datarow += "url: """ . url . """"
+        datarow .= "url: """ . url . """"
     }
-    datarow += ", duration: " . T_DURATION . """, start: " . T_START_F . """" . ", end: """ . T_NOW_F . """, program: """ . g_prev_program_name . """}`r`n"
-    debug_tray("Writing: " g_prev_window_title " " T_DURATION)
+    datarow .= ", duration: " . T_DURATION . """, start: " . T_START_F . """" . ", end: """ . T_NOW_F . """, program: """ . g_prev_program_name . """}`r`n"
+    ;debug_tray("Writing: " g_prev_window_title " " T_DURATION)
 
     ; write
     FileAppend, %datarow%, %filename%
