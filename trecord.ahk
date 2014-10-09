@@ -8,6 +8,7 @@
 
 ; state
 old_prog = StartUp
+olt_title := ""
 first_run = 1
 store_prev = 1
 
@@ -16,9 +17,10 @@ filename = time.txt ; output
 debug_log_file = debug.log ; debug log
 DEBUG_MODE = 1 ; tray notifications and logging
 TIMESTAMP_FORMAT = yyyy-MM-ddThh:mm:ssZ
+PROGRAM_CHECK_FREQUENCY = 300
 
 ; set initial start time
-SetTimerF("checkCurrentProgram", 500)
+SetTimerF("checkCurrentProgram", PROGRAM_CHECK_FREQUENCY)
 
 ; return time difference in HH:MM:SS format
 ; -----------------------------------------
@@ -46,13 +48,12 @@ shouldLog() {
         return 0
     if (g_window_title = "Task Switching")
         return 0
-    ;debug_tray("should log" windowTitle)
     return 1
 }
 
 ; set g_program_name and g_window_title
 ; -------------------------------------
-getCurrentProgramInfo() {
+getWindowProgramInfo(window_ahk_id) {
     global
 
     ; store previous values
@@ -62,9 +63,8 @@ getCurrentProgramInfo() {
     }
 
     ; get new ones
-    WinGet, g_program_name, ProcessName, A
-    WinGetActiveTitle, g_window_title
-
+    WinGet, g_program_name, ProcessName, ahk_id %window_ahk_id%
+    WinGetTitle, g_window_title, ahk_id %window_ahk_id%
 }
 
 ; returns url if `hwnd` is a browser
@@ -108,7 +108,7 @@ writeLogEntry() {
         datarow .= "url: """ . url . """"
     }
     datarow .= ", duration: " . T_DURATION . """, start: " . T_START_F . """" . ", end: """ . T_NOW_F . """, program: """ . g_prev_program_name . """}`r`n"
-    ;debug_tray("Writing: " g_prev_window_title " " T_DURATION)
+    debug_tray("Writing: " g_prev_window_title " " T_DURATION)
 
     ; write
     FileAppend, %datarow%, %filename%
@@ -119,10 +119,15 @@ writeLogEntry() {
 checkCurrentProgram() {
     global
 
-    if (old_prog = WinExist("A"))                ; if hWnd values match
-       return                                    ; go back and wait for next execution of time
+    curr_ahk_id := WinExist("A")
+    if (old_prog = curr_ahk_id) {                ; if hWnd values match
+        WinGetTitle, curr_title, ahk_id %curr_ahk_id%
+        if (old_title = curr_title) {
+            return
+        }
+    }
 
-    getCurrentProgramInfo()
+    getWindowProgramInfo(curr_ahk_id)
 
     ; not first run - log previously recorded window
     if (!first_run) {
@@ -138,6 +143,7 @@ checkCurrentProgram() {
 
     ; set old_prog with hWnd of new active window
     old_prog := WinExist("A")                   
+    WinGetTitle, old_title, ahk_id %old_prog%
 
     ; reset StartTime with new time
     FormatTime, T_START_F,,%TIMESTAMP_FORMAT%
