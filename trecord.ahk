@@ -6,18 +6,21 @@
 #include get-active-browser-url.ahk
 #include utils.ahk
 
-; state
-old_prog = StartUp
-olt_title := ""
-first_run = 1
-store_prev = 1
-
 ; settings
 filename = time.txt ; output
 debug_log_file = debug.log ; debug log
 DEBUG_MODE = 1 ; tray notifications and logging
 TIMESTAMP_FORMAT = yyyy-MM-ddThh:mm:ssZ
-PROGRAM_CHECK_FREQUENCY = 300
+PROGRAM_CHECK_FREQUENCY = 500
+IDLE_TIME = 30000 ; 5 minutes
+
+; state
+old_prog = StartUp
+olt_title := ""
+first_run = 1
+store_prev = 1
+is_away = 0
+idle_start = 0 ; timestamp; not 100% accurate
 
 ; set initial start time
 SetTimerF("checkCurrentProgram", PROGRAM_CHECK_FREQUENCY)
@@ -116,9 +119,33 @@ writeLogEntry() {
     store_prev = 1
 }
 
+writeAwayEntry() {
+    ; build data
+    datarow := "{away: ""true"", start: """ . away_start . """, end: """ . awat_end . """}"
+
+    debug_tray("Writing: away: " away_duration)
+
+    ; write
+    FileAppend, %datarow%, %filename%
+}
+
 checkCurrentProgram() {
     global
 
+    ; check if idle
+    if(A_TimeIdle > IDLE_TIME) {
+        is_away = true
+        away_start = %A_now%
+    } else {
+        if(is_away) {
+            writeAwayEntry()
+        }
+        is_away = false
+    }
+
+    ; check if title is different form previous when window id is the same
+    ; ex: Firefox - will have the same window id, even though a different
+    ; tab is opened.
     curr_ahk_id := WinExist("A")
     if (old_prog = curr_ahk_id) {                ; if hWnd values match
         WinGetTitle, curr_title, ahk_id %curr_ahk_id%
