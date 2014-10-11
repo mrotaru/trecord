@@ -12,7 +12,8 @@ debug_log_file = debug.log ; debug log
 DEBUG_MODE = 1 ; tray notifications and logging
 TIMESTAMP_FORMAT = yyyy-MM-ddThh:mm:ssZ
 PROGRAM_CHECK_FREQUENCY = 500
-IDLE_TIME = 30000 ; 5 minutes
+;IDLE_TIME = 30000 ; 5 minutes
+IDLE_TIME = 5000
 
 ; state
 old_prog = StartUp
@@ -111,7 +112,8 @@ writeLogEntry() {
         datarow .= "url: """ . url . """"
     }
     datarow .= ", duration: " . T_DURATION . """, start: " . T_START_F . """" . ", end: """ . T_NOW_F . """, program: """ . g_prev_program_name . """}`r`n"
-    debug_tray("Writing: " g_prev_window_title " " T_DURATION)
+    
+    ;debug_tray("Writing: " g_prev_window_title " " T_DURATION)
 
     ; write
     FileAppend, %datarow%, %filename%
@@ -121,7 +123,11 @@ writeLogEntry() {
 
 writeAwayEntry() {
     ; build data
-    datarow := "{away: ""true"", start: """ . away_start . """, end: """ . awat_end . """}"
+    global
+    away_end = %A_now%
+    local duration := getTimeDifference(away_start,away_end)
+    FormatTime, away_end_f,,%TIMESTAMP_FORMAT%
+    datarow := "{away: ""true"", start: """ . away_start_f . """, end: """ . away_end_f . """," . duration . """}`r`n"
 
     debug_tray("Writing: away: " away_duration)
 
@@ -134,13 +140,17 @@ checkCurrentProgram() {
 
     ; check if idle
     if(A_TimeIdle > IDLE_TIME) {
-        is_away = true
-        away_start = %A_now%
+        if(!is_away) {
+            away_start = %A_now%, 
+            away_start -= IDLE_TIME/1000, seconds
+            FormatTime, away_start_f,%away_start%,%TIMESTAMP_FORMAT%
+            is_away = true
+        }
     } else {
         if(is_away) {
             writeAwayEntry()
+            is_away = 0
         }
-        is_away = false
     }
 
     ; check if title is different form previous when window id is the same
