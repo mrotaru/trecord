@@ -13,7 +13,7 @@ DEBUG_MODE = 1 ; tray notifications and logging
 TIMESTAMP_FORMAT = yyyy-MM-ddThh:mm:ssZ
 PROGRAM_CHECK_FREQUENCY = 500
 ;IDLE_TIME = 30000 ; 5 minutes
-IDLE_TIME = 5000
+IDLE_TIME = 3000 ; 3 seconds
 
 ; state
 old_prog = StartUp
@@ -125,11 +125,14 @@ writeAwayEntry() {
     ; build data
     global
     away_end = %A_now%
-    local duration := getTimeDifference(away_start,away_end)
+    ;local away_duration := getTimeDifference(away_start,away_end)
+    local away_duration := away_end - away_start
+    FormatTime, away_duration_f,away_duration,hh:mm:ss
     FormatTime, away_end_f,,%TIMESTAMP_FORMAT%
-    datarow := "{away: ""true"", start: """ . away_start_f . """, end: """ . away_end_f . """," . duration . """}`r`n"
+    datarow := "{away: ""true"", start: """ . away_start_f . """, end: """ . away_end_f . """," . away_duration . """}`r`n"
 
-    debug_tray("Writing: away: " away_duration)
+    ;debug_tray("Writing: away: " away_duration)
+    debug_tray("Writing: away: " away_duration, 5)
 
     ; write
     FileAppend, %datarow%, %filename%
@@ -141,9 +144,13 @@ checkCurrentProgram() {
     ; check if idle
     if(A_TimeIdle > IDLE_TIME) {
         if(!is_away) {
-            away_start = %A_now%, 
-            away_start -= IDLE_TIME/1000, seconds
+            away_start := A_now
+            away_start_before = %away_start%
+            IDLE_TIME_SECONDS := Floor(IDLE_TIME/1000)
+            ;away_start -= IDLE_TIME_SECONDS, seconds
+            ;EnvSub, away_start, IDLE_TIME_SECONDS, seconds
             FormatTime, away_start_f,%away_start%,%TIMESTAMP_FORMAT%
+            debug_tray("away: " . away_start_before . " - " . away_start . " s: " . IDLE_TIME_SECONDS)
             is_away = true
         }
     } else {
