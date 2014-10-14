@@ -9,11 +9,10 @@
 ; settings
 filename = time.txt ; output
 debug_log_file = debug.log ; debug log
-DEBUG_MODE = 1 ; tray notifications and logging
+DEBUG_MODE = 0 ; tray notifications and logging
 TIMESTAMP_FORMAT = yyyy-MM-ddThh:mm:ssZ
 PROGRAM_CHECK_FREQUENCY = 500
-;IDLE_TIME = 30000 ; 5 minutes
-IDLE_TIME = 3000 ; 3 seconds
+IDLE_TIME = 300000 ; 5 minutes
 
 ; state
 old_prog = StartUp
@@ -41,6 +40,16 @@ getTimeDifference(_T_START, _T_END){
        min = 0%min%
 
     return hr . ":" . min . ":" . sec
+}
+
+; convert the specified number of seconds to hh:mm:ss format
+; ---------------------------------------------------------- 
+; from: http://www.autohotkey.com/docs/commands/FormatTime.htm (last example)
+formatSeconds(NumberOfSeconds) {
+    time = 19990101  ; *Midnight* of an arbitrary date.
+    time += %NumberOfSeconds%, seconds
+    FormatTime, mmss, %time%, mm:ss
+    return NumberOfSeconds//3600 ":" mmss  ; This method is used to support more than 24 hours worth of sections.
 }
 
 ; return 1 if should be logged
@@ -125,11 +134,10 @@ writeAwayEntry() {
     ; build data
     global
     away_end = %A_now%
-    ;local away_duration := getTimeDifference(away_start,away_end)
     local away_duration := away_end - away_start
-    FormatTime, away_duration_f,away_duration,hh:mm:ss
+    ;FormatTime, away_duration_f,away_duration,hh:mm:ss
     FormatTime, away_end_f,,%TIMESTAMP_FORMAT%
-    datarow := "{away: ""true"", start: """ . away_start_f . """, end: """ . away_end_f . """," . away_duration . """}`r`n"
+    datarow := "{away: ""true"", start: """ . away_start_f . """, end: """ . away_end_f . """, duration: """ . formatSeconds(away_duration) . """}`r`n"
 
     ;debug_tray("Writing: away: " away_duration)
     debug_tray("Writing: away: " away_duration, 5)
@@ -147,10 +155,9 @@ checkCurrentProgram() {
             away_start := A_now
             away_start_before = %away_start%
             IDLE_TIME_SECONDS := Floor(IDLE_TIME/1000)
-            ;away_start -= IDLE_TIME_SECONDS, seconds
-            ;EnvSub, away_start, IDLE_TIME_SECONDS, seconds
+            away_start+=-IDLE_TIME_SECONDS,seconds
             FormatTime, away_start_f,%away_start%,%TIMESTAMP_FORMAT%
-            debug_tray("away: " . away_start_before . " - " . away_start . " s: " . IDLE_TIME_SECONDS)
+            debug_tray("away: " . IDLE_TIME_SECONDS . "(s) " . away_start_before . " - " . away_start . " s: " . IDLE_TIME_SECONDS)
             is_away = true
         }
     } else {
