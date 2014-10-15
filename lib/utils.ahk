@@ -27,3 +27,9 @@ debug_tray(msg="", display_time=2){
 remove_tray_tip(){
     TrayTip
 }
+
+isPath(str) {
+    regExp = ((([a-zA-Z]\:)|(\\))(\\{1}|((\\{1})[^\\]([^/:*?<>"|]*))+))([\s]|$)
+    FoundPos := RegExMatch(str, regExp, SubPat)
+    return FoundPos ? SubPat : 0
+}

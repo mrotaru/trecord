@@ -9,7 +9,7 @@
 ; settings
 filename = time.txt ; output
 debug_log_file = debug.log ; debug log
-DEBUG_MODE = 0 ; tray notifications and logging
+DEBUG_MODE = 1 ; tray notifications and logging
 TIMESTAMP_FORMAT = yyyy-MM-ddThh:mm:ssZ
 PROGRAM_CHECK_FREQUENCY = 500
 IDLE_TIME = 300000 ; 5 minutes
@@ -113,6 +113,12 @@ writeLogEntry() {
     ; browser ? then extract URL
     if(isABrowser(old_prog)) {
         url := getBrowserUrl(old_prog)
+    }
+
+    ; path ?
+    path := isPath(g_prev_window_title)
+    if(path) {
+        debug_tray("path: " path)
     }
 
     ; build data
