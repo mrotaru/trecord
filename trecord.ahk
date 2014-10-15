@@ -4,6 +4,7 @@
 #include %A_ScriptDir%/lib
 #include set-timer-f.ahk
 #include get-active-browser-url.ahk
+#include path.ahk
 #include utils.ahk
 
 ; settings
@@ -116,7 +117,7 @@ writeLogEntry() {
     }
 
     ; path ?
-    path := isPath(g_prev_window_title)
+    path := isPath({window_title: g_prev_window_title})
     if(path) {
         debug_tray("path: " path)
     }
