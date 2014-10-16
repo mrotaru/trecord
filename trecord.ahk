@@ -117,9 +117,9 @@ writeLogEntry() {
     }
 
     ; path ?
-    path := isPath({window_title: g_prev_window_title})
+    path := isPath({ window_title: g_prev_window_title, program_name: g_prev_program_name })
     if(path) {
-        debug_tray("path: " path)
+        ;debug_tray("path: " path)
     }
 
     ; build data
