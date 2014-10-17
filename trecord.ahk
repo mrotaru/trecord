@@ -115,16 +115,20 @@ writeLogEntry() {
     ; browser ? then extract URL
     if(isABrowser(old_prog)) {
         url := getBrowserUrl(old_prog)
-    }
-
-    ; path ?
-    path := isPath({ window_title: g_prev_window_title, program_name: g_prev_program_name })
-    if(path) {
-        ;debug_tray("path: " path)
+    } else {
+        url := ""
     }
 
     ; build data
     datarow := "{window: """ . g_prev_window_title . ""","
+
+    ; path ?
+    local m_path := isPath({ window_title: g_prev_window_title, program_name: g_prev_program_name })
+    if(m_path) {
+        datarow .= "path: """ . m_path . """"
+    }
+
+    ; url ?
     if(url != "") {
         datarow .= "url: """ . url . """"
     }
