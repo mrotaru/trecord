@@ -6,6 +6,7 @@
 #include get-active-browser-url.ahk
 #include path.ahk
 #include utils.ahk
+#include string-object.ahk
 
 ; settings
 filename = time.txt ; output
