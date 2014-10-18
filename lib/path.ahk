@@ -4,6 +4,8 @@ getGvimPath(window_title) {
     return FoundPos ? SubPatFolderName . "\" . SubPatFileName : 0
 }
 
+; Extract path from titles such as: MINGW32:/c/code/trecord
+; Returns the path converted to Windows format: c:\code\trecord
 getMinGWPath(window_title) {
     regExp = MINGW32:(?<CurrentDirectory>(\/[^<>:"/\|?*]+)+)
     FoundPos := RegExMatch(window_title, regExp, SubPat)
@@ -17,8 +19,6 @@ getMinGWPath(window_title) {
 }
 
 ; some programs require special instructions to obtain file name
-;fref := Func("getGvimPath")
-;debug_tray("a: " ["gvimexe"])
 pathExtractPrograms := {}
 pathExtractPrograms["gvim.exe"] := Func("getGvimPath")
 pathExtractPrograms["sh.exe"] := Func("getMinGWPath")

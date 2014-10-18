@@ -112,13 +112,6 @@ writeLogEntry() {
     FormatTime, T_NOW_F,,%TIMESTAMP_FORMAT%
     T_DURATION := getTimeDifference(T_START, T_NOW)
 
-    ; browser ? then extract URL
-    if(isABrowser(old_prog)) {
-        url := getBrowserUrl(old_prog)
-    } else {
-        url := ""
-    }
-
     ; build data
     datarow := "{window: """ . g_prev_window_title . ""","
 
@@ -128,10 +121,15 @@ writeLogEntry() {
         datarow .= "path: """ . m_path . """"
     }
 
-    ; url ?
-    if(url != "") {
-        datarow .= "url: """ . url . """"
+    ; browser ? then extract URL
+    if(isABrowser(old_prog)) {
+        url := getBrowserUrl(old_prog)
+        if(url != "") {
+            datarow .= "url: """ . url . """"
+        }
     }
+
+    ; compose json line
     datarow .= ", duration: " . T_DURATION . """, start: " . T_START_F . """" . ", end: """ . T_NOW_F . """, program: """ . g_prev_program_name . """}`r`n"
     
     ;debug_tray("Writing: " g_prev_window_title " " T_DURATION)
