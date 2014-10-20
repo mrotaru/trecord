@@ -7,6 +7,7 @@
 #include path.ahk
 #include utils.ahk
 #include string-object.ahk
+#include tags.ahk
 
 ; settings
 filename = time.txt ; output
