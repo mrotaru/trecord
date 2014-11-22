@@ -129,6 +129,11 @@ writeLogEntry() {
             datarow .= "url: """ . url . """"
         }
     }
+    
+    ; tag ?
+    if(isAutoTag(datarow)) {
+        datarow := datarow
+    }
 
     ; compose json line
     datarow .= ", duration: " . T_DURATION . """, start: " . T_START_F . """" . ", end: """ . T_NOW_F . """, program: """ . g_prev_program_name . """}`r`n"
