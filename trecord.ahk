@@ -8,6 +8,7 @@
 #include utils.ahk
 #include string-object.ahk
 #include tags.ahk
+#include vendor/json.ahk
 
 ; settings
 filename = time.txt ; output
@@ -114,31 +115,39 @@ writeLogEntry() {
     T_DURATION := getTimeDifference(T_START, T_NOW)
 
     ; build data
-    datarow := "{window: """ . g_prev_window_title . ""","
+    datarow := {}
+    datarow.window := g_prev_window_title
 
     ; path ?
     local m_path := isPath({ window_title: g_prev_window_title, program_name: g_prev_program_name })
     if(m_path) {
-        datarow .= "path: """ . m_path . """"
+        datarow.path := m_path
     }
 
     ; browser ? then extract URL
     if(isABrowser(old_prog)) {
         url := getBrowserUrl(old_prog)
         if(url != "") {
-            datarow .= "url: """ . url . """"
+            datarow.url := url
         }
     }
     
     ; tag ?
-    if(isAutoTag(datarow)) {
-        datarow := datarow
+    local tags := getAutoTags(datarow)
+    if(tags) {
+        datarow.tags := tags
     }
 
-    ; compose json line
-    datarow .= ", duration: " . T_DURATION . """, start: " . T_START_F . """" . ", end: """ . T_NOW_F . """, program: """ . g_prev_program_name . """}`r`n"
+    ; attach other properties
+    datarow.duration := T_DURATION
+    datarow.start := T_START_F
+    datarow.end := T_NOW_F
+    datarow.program := g_prev_program_name
+
+    datarow := JSON.stringify(datarow) . "`r`n"
     
     ;debug_tray("Writing: " g_prev_window_title " " T_DURATION)
+    ;MsgBox %datarow%
 
     ; write
     FileAppend, %datarow%, %filename%
