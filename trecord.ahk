@@ -116,7 +116,7 @@ writeLogEntry() {
 
     ; build data
     datarow := {}
-    datarow.window := g_prev_window_title
+    datarow.window_title := g_prev_window_title
 
     ; path ?
     local m_path := isPath({ window_title: g_prev_window_title, program_name: g_prev_program_name })
