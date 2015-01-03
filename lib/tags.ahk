@@ -18,29 +18,39 @@ if(!tag_config) {
 getAutoTags(info) {
     local tags := []
     ;MsgBox % JSON.stringify(info)
-    ; tag - warband
+
+
+    ; for each tag loaded from the config file
+    ; -----------------------------------------
+    ; tag - tag from loaded yml file
     ; tagKeys - program_name, path, etc
     For tag, tagKeys in tag_config
-        ; tagKey - path
+
+        ; go over each type of property (path, url, etc)
+        ; ----------------------------------------------
+        ; property - path | program_name | url ...
         ; tagValue - [ "a.exe", "b.exe" ] || "c:\\code"
-        For tagKey, tagValue in tagKeys
-            ; check if `info` has `tagKey` property
-            if(info[tagKey]) {
+        For property, value in tagKeys
+
+            ; and check if the object we're checking has any such property
+            if(info[property]) {
+
                 ; if it's an array
-                if(isObject(tag_config[tag][tagKey])) {
-                    ;MsgBox % "an object: " tag "[" tagKey "]"
+                if(isObject(tag_config[tag][property])) {
+                    ;MsgBox % "an object: " tag "[" property "]"
                     ; iterate
-                    For index, regex in tag_config[tag][tagKey]
-                        if(RegExMatch(info[tagKey], regex)) {
-                            MsgBox % "found tag: " tag " for " info[tagKey]
+                    For index, regex in tag_config[tag][property]
+                        if(RegExMatch(info[property], regex)) {
+                            MsgBox % "found tag: " tag " for " info[property]
                             tags.insert(tag)
                         } else {
-                            MsgBox % "no match: " info[tagKey]
+                            MsgBox % "no match: " info[property]
                         }
+                ; string
                 } else {
-                    pos := RegExMatch(info[tagKey], tag_config[tag][tagKey])
+                    pos := RegExMatch(info[property], tag_config[tag][property])
                     if(pos) {
-                        MsgBox % "found tag: " tag " for " info[tagKey]
+                        MsgBox % "found tag: " tag " for " info[property]
                         tags.insert(tag)
                     }
                 }
