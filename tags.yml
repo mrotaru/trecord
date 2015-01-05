@@ -1,0 +1,8 @@
+trecord:
+	path:
+		- c:\\code\\trecord
+		- c:\\code\\trecord\\tes
+
+browse:
+    program:
+        - firefox\.exe
