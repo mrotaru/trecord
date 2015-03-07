@@ -5,9 +5,9 @@
 ; read config
 if(!tag_config) {
     global tag_config
+    log("loading tag config...")
     tag_config := StrObj("tags.yml")
-    ;MsgBox % StrObj(tag_config)
-    ;debug_tray(StrObj(tag_config))
+    log(StrObj(tag_config), "tags")
 }
 
 ; Determine to which tags `info` corresponds
@@ -18,7 +18,6 @@ if(!tag_config) {
 getAutoTags(info) {
     local tags := []
     ;MsgBox % JSON.stringify(info)
-
 
     ; for each tag loaded from the config file
     ; -----------------------------------------
@@ -37,7 +36,7 @@ getAutoTags(info) {
 
                 ; if it's an array
                 if(isObject(tag_config[tag][property])) {
-                    ;MsgBox % "an object: " tag "[" property "]"
+                    MsgBox % "an object: " tag "[" property "]"
                     ; iterate
                     For index, regex in tag_config[tag][property]
                         if(RegExMatch(info[property], regex)) {
@@ -48,6 +47,7 @@ getAutoTags(info) {
                         }
                 ; string
                 } else {
+                    MsgBox % "an string: " tag "[" property "]"
                     pos := RegExMatch(info[property], tag_config[tag][property])
                     if(pos) {
                         MsgBox % "found tag: " tag " for " info[property]

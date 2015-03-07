@@ -27,3 +27,19 @@ debug_tray(msg="", display_time=2){
 remove_tray_tip(){
     TrayTip
 }
+
+; logging
+
+g_default_logging_method := "file"
+g_log_file := "trecord_log.txt"
+g_log_timestamp_format := "yyyy-MM-ddThh:mm:ssZ"
+
+log(message, tag="*"){
+    global g_log_file
+    global g_log_timestamp_format
+    T_NOW=%A_now%
+    MsgBox % "log: " g_log_file
+    FormatTime, T_NOW_F,,%g_log_timestamp_format%
+    datarow := T_NOW_F . " " . message . "`n"
+    FileAppend, %datarow%, %g_log_file%
+}

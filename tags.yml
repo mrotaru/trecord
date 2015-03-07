@@ -1,7 +1,6 @@
 trecord:
 	path:
-		- c:\\code\\trecord
-		- c:\\code\\trecord\\tes
+		- c:\\code\\trecord*
 
 browse:
     program:
