@@ -1,7 +1,0 @@
-trecord:
-	path:
-		- c:\\code\\trecord*
-
-browse:
-    program:
-        - firefox\.exe

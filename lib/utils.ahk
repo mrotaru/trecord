@@ -38,7 +38,6 @@ log(message, tag="*"){
     global g_log_file
     global g_log_timestamp_format
     T_NOW=%A_now%
-    MsgBox % "log: " g_log_file
     FormatTime, T_NOW_F,,%g_log_timestamp_format%
     datarow := T_NOW_F . " " . message . "`n"
     FileAppend, %datarow%, %g_log_file%

@@ -2,12 +2,18 @@
 ;IsFunc("SetTimerF") ? continue : MsgBox "Should have 'SetTimerF' function"
 ;IsFunc("StrObj")    ? continue : MsgBox "Should have 'StrObj' function"
 
-; read config
+; read tags into `tag_config`
+; The file is formatted as yml, with 3 levels of indentation. Example:
+; trecord: # tagName
+;	  path: # tagProps (1+)
+;		  - c:\\code\\trecord* # tagPropValue
+; 
 if(!tag_config) {
     global tag_config
     log("loading tag config...")
-    tag_config := StrObj("tags.yml")
-    log(StrObj(tag_config), "tags")
+    FileRead, tags_str, tags.json
+    tag_config := JSON.parse(tags_str)
+    log(tag_config)
 }
 
 ; Determine to which tags `info` corresponds
@@ -15,43 +21,49 @@ if(!tag_config) {
 ; info is an object about the current program, including at minimum
 ; program_name and window_title, but also can contain additional properties
 ; such as `url` or `path`. Return: array of matching tags
+;
+; This function checks the `info` object against each 
 getAutoTags(info) {
     local tags := []
-    ;MsgBox % JSON.stringify(info)
+    log("parsing tags for:")
+    log(JSON.stringify(info))
 
     ; for each tag loaded from the config file
     ; -----------------------------------------
-    ; tag - tag from loaded yml file
+    ; tagName - tagName from loaded yml file
     ; tagKeys - program_name, path, etc
-    For tag, tagKeys in tag_config
+    For tagName, tagProps in tag_config
 
         ; go over each type of property (path, url, etc)
         ; ----------------------------------------------
-        ; property - path | program_name | url ...
-        ; tagValue - [ "a.exe", "b.exe" ] || "c:\\code"
-        For property, value in tagKeys
+        ; tagProp - path | program_name | url ...
+        ; tagPropValue - [ "a.exe", "b.exe" ] || "c:\\code"
+        For tagProp, tagPropValue in tagProps
+
+            log("iterating: " . tagProp . " - " . tagPropValue)
 
             ; and check if the object we're checking has any such property
-            if(info[property]) {
+            if(info[tagProp]) {
 
                 ; if it's an array
-                if(isObject(tag_config[tag][property])) {
-                    MsgBox % "an object: " tag "[" property "]"
+                if(isObject(tag_config[tagName][tagProp])) {
+                    log("an object: " . tagName . "[" . tagProp . "]")
                     ; iterate
-                    For index, regex in tag_config[tag][property]
-                        if(RegExMatch(info[property], regex)) {
-                            MsgBox % "found tag: " tag " for " info[property]
-                            tags.insert(tag)
+                    For index, regex in tag_config[tagName][tagProp]
+                        log("testing regex: " . regex . " against: " . info[tagProp])
+                        if(RegExMatch(info[tagProp], regex)) {
+                            log("--- match FOUND ---")
+                            tags.insert(tagName)
                         } else {
-                            MsgBox % "no match: " info[property]
+                            log("no match")
                         }
                 ; string
                 } else {
-                    MsgBox % "an string: " tag "[" property "]"
-                    pos := RegExMatch(info[property], tag_config[tag][property])
+                    log("a string: " . tagName . "[" . tagProp . "]")
+                    pos := RegExMatch(info[tagProp], tag_config[tagName][tagProp])
                     if(pos) {
-                        MsgBox % "found tag: " tag " for " info[property]
-                        tags.insert(tag)
+                        log("found tagName: " . tagName . " for " . info[property])
+                        tags.insert(tagName)
                     }
                 }
             }
