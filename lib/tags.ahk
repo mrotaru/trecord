@@ -12,8 +12,8 @@ if(!tag_config) {
     global tag_config
     log("loading tag config...")
     FileRead, tags_str, tags.json
-    tag_config := JSON.parse(tags_str)
-    log(tag_config)
+    tag_config := JSON.parse(tags_str, true)
+    log(JSON.stringify(tag_config, "  "))
 }
 
 ; Determine to which tags `info` corresponds
@@ -25,7 +25,6 @@ if(!tag_config) {
 ; This function checks the `info` object against each 
 getAutoTags(info) {
     local tags := []
-    log("parsing tags for:")
     log(JSON.stringify(info))
 
     ; for each tag loaded from the config file
@@ -34,16 +33,21 @@ getAutoTags(info) {
     ; tagKeys - program_name, path, etc
     For tagName, tagProps in tag_config
 
+        log("checking if matches tag: " . tagName)
+        log("tagProps: ")
+        log(JSON.stringify(tagProps))
+
         ; go over each type of property (path, url, etc)
         ; ----------------------------------------------
         ; tagProp - path | program_name | url ...
         ; tagPropValue - [ "a.exe", "b.exe" ] || "c:\\code"
         For tagProp, tagPropValue in tagProps
 
-            log("iterating: " . tagProp . " - " . tagPropValue)
+            log("  property: " . tagProp)
 
             ; and check if the object we're checking has any such property
             if(info[tagProp]) {
+                log("has property: " . tagProp)
 
                 ; if it's an array
                 if(isObject(tag_config[tagName][tagProp])) {
@@ -52,7 +56,7 @@ getAutoTags(info) {
                     For index, regex in tag_config[tagName][tagProp]
                         log("testing regex: " . regex . " against: " . info[tagProp])
                         if(RegExMatch(info[tagProp], regex)) {
-                            log("--- match FOUND ---")
+                            log("matches tag: " . tagName)
                             tags.insert(tagName)
                         } else {
                             log("no match")
@@ -66,6 +70,9 @@ getAutoTags(info) {
                         tags.insert(tagName)
                     }
                 }
+            } else {
+                log("info has no property: " . tagProp)
             }
+    log("-------------------------------------------------------------")
     return tags
 }

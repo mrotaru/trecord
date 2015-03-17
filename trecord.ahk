@@ -132,17 +132,17 @@ writeLogEntry() {
         }
     }
     
-    ; tag ?
-    local tags := getAutoTags(datarow)
-    if(tags) {
-        datarow.tags := tags
-    }
-
     ; attach other properties
     datarow.duration := T_DURATION
     datarow.start := T_START_F
     datarow.end := T_NOW_F
     datarow.program := g_prev_program_name
+
+    ; tag ?
+    local tags := getAutoTags(datarow)
+    if(tags) {
+        datarow.tags := tags
+    }
 
     datarow := JSON.stringify(datarow) . "`r`n"
     
