@@ -31,19 +31,17 @@ getAutoTags(info) {
     ; -----------------------------------------
     ; tagName - tagName from loaded yml file
     ; tagKeys - program_name, path, etc
-    For tagName, tagProps in tag_config
+    For tagName, tagProps in tag_config {
 
         log("checking if matches tag: " . tagName)
-        log("tagProps: ")
-        log(JSON.stringify(tagProps))
 
         ; go over each type of property (path, url, etc)
         ; ----------------------------------------------
         ; tagProp - path | program_name | url ...
         ; tagPropValue - [ "a.exe", "b.exe" ] || "c:\\code"
-        For tagProp, tagPropValue in tagProps
+        For tagProp, tagPropValue in tagProps {
 
-            log("  property: " . tagProp)
+            log("property: " . tagProp)
 
             ; and check if the object we're checking has any such property
             if(info[tagProp]) {
@@ -73,6 +71,8 @@ getAutoTags(info) {
             } else {
                 log("info has no property: " . tagProp)
             }
+        }
+    }
     log("-------------------------------------------------------------")
     return tags
 }
